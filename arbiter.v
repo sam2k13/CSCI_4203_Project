@@ -13,7 +13,7 @@ module arbiter(
 );
 
   reg [4:0] ctrl_output;
-
+ //edit
   //precedence order is
   // load > store >  mult > adder
 
