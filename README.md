@@ -1,3 +1,7 @@
+My notes from lecture are in the file lecture.txt
+
+
+
 This is an incomplete behavioral implementation of the Tomasulo algorithm in verilog.
 Your task is to add a reorder buffer to it in order to support speculation.
 
