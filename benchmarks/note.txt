@@ -1,0 +1,58 @@
+1. Ld value from mem location 0 to reg 0.
+   Store from reg 0 to location 6.
+
+   Ld value from mem location 1 to reg 1.
+   Store from reg 1 to location 7
+
+   ..
+
+   Ld value from mem location 5 to reg 5
+   Store from reg 5 to location 11.
+=====================================
+
+2. Ld values from the memory into registers :
+   Mem 0 to reg 0
+   Mem 1 to reg 1
+   ...
+   Mem 5 to reg 5
+
+   Accumulate result into reg 6
+   reg 5 +reg 6 = reg6
+
+   reg4 +reg 6 = reg 6
+   ...
+   reg0 + reg6 = reg 6;
+=====================================
+
+3. Ld values from memory in registers
+   Mem 0 to reg 0
+   Mem 1 to reg 1
+   ...
+   Mem 5 to reg 5
+
+  Do multiplications:
+  reg 5 * reg 1 -> reg 6
+  reg 5 * reg 2 -> reg 7
+  reg 5 *reg 3 --> reg 8
+  reg5 * reg 4 --> reg 9
+  reg5 *reg 5 --> reg 10
+  reg5 * reg6 --> reg 11
+
+======================================
+
+4. BEQ -- infinite addition
+
+  load mem0 to reg 0
+  load mem 1 to reg 1
+  add reg 0 to reg 1
+  if reg 0 is 0, then branch to the 2nd instruction
+
+======================================
+
+5.  JMP -- infinite addition
+
+  load mem 0 to reg 0
+  add reg 0 to reg 1
+  jump to the first instruction
+
+======================================

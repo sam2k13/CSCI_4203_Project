@@ -1,0 +1,81 @@
+-Modules are organized according to class slides.
+
+Module : Tomasulo
+
+input is a clock signal,
+
+output are buses are used for test bench to write mem values.
+
+bunch of control wires, ignore them at first.
+
+First unit is fetch, not shown in tomasulo, just used to read instructions from file, same as assignment 1.
+
+PC same as last time.   branch coing in from added, if updated it will updated mux.  CTRL_PC decides if fetch next or do branch instructions
+
+Instruction Quese:
+
+take an instruction input from the fecth unit (iq_inst_in), also passed PC value because branches are releative to pc value, wr_en means that on the next clock cycle whatever intruction is there will go to que. if re_en = 1 at next clock edge read instruction from que
+flush used to empty queue of all instructions, used whenever there is a branch.  Because if there is a branch we should fetch anymore and should empty queu.  iq_empty_iq_full tells you if it is full or empty.
+
+wr_en rd_en are determined by control logic, flush controlled by CTRL_PC signal.
+
+//ISSUE CONTROL
+
+not shown in diagram.  it retreieves thee next instructionin instruction queue, and informs the modules what they should do next.  instructionsending with free are inputs that come in
+from in the reservation stations and tell which slot is free.  It will set stall to 1 if nothing is free.  reg_src1, reg_src2_, reg_dest tels the register file that for the next instruction
+will decide what operand gets put on the operancd bux. reg_dest will decide which register should be tagged. rs_tag, if it was an add it would be adder free, multiply free.  
+
+CTRL_ld,CTRL_st, CTRL_add, CTRL_mult, _CTRL_br control signals that go to reservation stations. tell the reservation station if they should except a value or not.  Decide where the values are 
+supposed to go.  The signals go to all res stations.
+
+opcode to the reservation station if different operations are happening. ex. all branches and jumps go to the adder so opcode needs to specify.  stall will stall the instruction
+queue if everything is busy.
+
+//OFFSET data
+
+not shown.  for the instruction at the head of the queue it calculates the possible offset.  Like the branch has an offset and load and store have an offset too.  
+
+//REGISTER FILE
+
+has clock and stall. stall comes from control issue logic.  if there is a stall then I dont add any tags.  rs_tag is the to add.  nodest means I shouldn't tag naything for this instruction.
+For example, if there is a store instruction it does not need to be tagged.  common data bus has inputs that go to all res stations and inputs.  tb_regs is just used to get a handle on the
+current register values.
+
+//RESERVATION STATIONS
+
+lots of inputs.  focuse on rs_memory...
+
+clk coming in. CTRL_mem comes in from issue control logic and tells me if the memeory rs should accept a new instruction.  mem_ready is an output and tells if it is done with a loadd and store.
+At this point the reservation station would clear the entry.  op_1, op_2, tag_1,, tag_2 operand buses coming in from reg file.  
+
+CTRL_LD, CTRL_ST are used. CTRL load tels me if a load instruction is inbound.  ld_busy_st_busy, output signals that say if no rs is available,  rs_mem_ready tells me that it checks if any of the load. In the
+reservation ther is a set of tags that tell us if that reservvation station is ready.  Like if all of the operands for the reservations station are available.  If all those values are available,
+the ready_to_write is set to 1. rs_mem_ready tells us that.  rs_mem_cdb_id tells me which part is ready.  which part gets returned.  For example, if a load instr is being executed then rs_memcdb_id .  gors to cdb logic
+so it knows where to write the write back value of that.  thins of them that they are used to control  the cdb when is does its writeback. datIn, addr, control kind of same as assignment 1.
+
+rs_ld_free, rs_st_free, outputs and say which positions are free.  wheter the ld rs or st rs.
+
+
+
+
+Module :rs_memory
+
+complexy. has reservation stations and other data structures.
+
+has load and store reservation stations.  they are just the budders where you sture.  load_store_queue whenever a new mem operation comes in it first goes to this queue until we have
+calculated the address that goes with that. for load you would get the address where you want the writeback.  or in store get the address where you want to store the value.  Calculates address.
+Need to do that because it helps in mantaining the memory order.  Recall, when multiple loads and stores are coming in, we need to mantain the order between loads and store.  Otherwise we
+may hava hazards. mem_order keeps track of the order in which the instructions came in. example ld1, ld2, st1, st2, it will remember that order.  if ld2 is ready first, the we want to write
+the value from ld2.  what mem_order wil do is it will check which is ready. it will find ld2 is ready.  it will check the addresses stored with the other ones.  If there is an address conflict,
+then it will stall ld2 because it cannot be executed before st2 is executed.
+
+address_calc, just adds to the offset to the operand.
+
+
+Adder, multiplier and memory are just logical units.  all are connected to the CDB. the arbiter decides which of the values should go to the data bus.  
+
+Add an ROB.v file.s
+
+
+
+
