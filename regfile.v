@@ -15,9 +15,9 @@ module regfile(
   input [4:0] reg_dest,
   input nodest,
 
-  //input from the cdb
-  input [3:0] cdb_id,
-  input [63:0] cdb_data,
+  //input from the rob
+  input [3:0] rob_id,
+  input [63:0] rob_data,
 
   //operand bus for add
   output reg [63:0] op_1,
@@ -112,14 +112,14 @@ module regfile(
 
   always @(posedge clk)
   begin
-      // --receive input data from the cdb
-      if ((cdb_id != notag))
+      // --receive input data from the rob
+      if ((rob_id != notag))
       begin
           for (i=0; i<32; i= i +1)
           begin
-                if(Tags[i] == cdb_id)
+                if(Tags[i] == rob_id)
                 begin
-                      Regs[i] = cdb_data;
+                      Regs[i] = rob_data;
                       Tags[i] = 0;
                 end
           end

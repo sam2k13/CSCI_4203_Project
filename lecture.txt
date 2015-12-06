@@ -12,7 +12,7 @@ First unit is fetch, not shown in tomasulo, just used to read instructions from 
 
 PC same as last time.   branch coing in from added, if updated it will updated mux.  CTRL_PC decides if fetch next or do branch instructions
 
-Instruction Quese:
+Instruction Queue:
 
 take an instruction input from the fecth unit (iq_inst_in), also passed PC value because branches are releative to pc value, wr_en means that on the next clock cycle whatever intruction is there will go to que. if re_en = 1 at next clock edge read instruction from que
 flush used to empty queue of all instructions, used whenever there is a branch.  Because if there is a branch we should fetch anymore and should empty queu.  iq_empty_iq_full tells you if it is full or empty.
