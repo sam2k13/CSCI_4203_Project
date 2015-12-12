@@ -18,7 +18,7 @@ module rs_adder(
     input [63:0] op_2,
     input [63:0] incrPC,
     input [63:0] offset,
-
+	input [1:0] rob_slot,
     // -- cdb
     input [3:0] cdb_id,
     input [63:0] cdb_data,
@@ -36,6 +36,7 @@ module rs_adder(
 //  DATA outputs
     // -- arbiter
     output reg [3:0] cdb_write_id,
+	output reg [1:0] rob_dest,
     // --to adder
     output reg [63:0] adder_A,
     output reg [63:0] adder_B,
@@ -66,6 +67,7 @@ module rs_adder(
             st_2 = 10;
 
    //adder reservation data
+   reg [1:0] rob_slot [0:1];
    reg [63:0] op1 [0:2];
    reg [63:0] op2 [0:2];
    reg [3:0] tag1 [0:2];
@@ -205,7 +207,7 @@ module rs_adder(
                 op2[0] <= op_2;
                 tag2[0] <= tag_2;
             end
-
+			rob_dest[0] = rob_slot;
             free[0] <= 0;
             rs_incrPC[0] <= incrPC;
             rs_offset[0] <= offset;
@@ -234,7 +236,7 @@ module rs_adder(
                 op2[1] <= op_2;
                 tag2[1] <= tag_2;
             end
-
+			rob_dest[1] = rob_slot;
             free[1] <= 0;
             rs_incrPC[1] <= incrPC;
             rs_offset[1] <= offset;
@@ -263,7 +265,7 @@ module rs_adder(
                 op2[2] <= op_2;
                 tag2[2] <= tag_2;
             end
-
+			rob_dest[2] = rob_slot;
             free[2] <= 0;
             rs_incrPC[2] <= incrPC;
             rs_offset[2] <= offset;

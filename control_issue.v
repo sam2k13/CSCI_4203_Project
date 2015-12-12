@@ -1,7 +1,7 @@
 module issue(
   input clk,
   input [31:0] instruction,
-
+  ,
   //says whether the rs has a free spot
   input [3:0] rs_mult,  
   input [3:0] rs_adder,
@@ -12,6 +12,10 @@ module issue(
   //stall in case of branch
   input br_stall,
 
+  //CTRL input from ROB
+  input CTRL_rob_full,
+  input [1:0] free_rob_slot
+  
   //CTRL output to regfile
   output reg [4:0] reg_src1,
   output reg [4:0] reg_src2,
@@ -26,7 +30,7 @@ module issue(
   output reg CTRL_add,
   output reg CTRL_mult,
   output reg CTRL_br,
-
+  output reg rob_slot,
   //send the op code to the reservation station
   output [5:0] opcode,
   
@@ -142,6 +146,9 @@ module issue(
           else stall = 0;
        end
     endcase
+	stall |= CTRL_rob_full;
+	
+	
   end
  
   always @(*)

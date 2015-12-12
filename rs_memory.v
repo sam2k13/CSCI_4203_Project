@@ -15,6 +15,7 @@ module rs_memory(  //includes load and store buffers and their datastructures
     input [3:0] qj,  //the two operand tags (if value not available)
     input [3:0] qk,
     input [63:0] A,   //offset
+	input [1:0] rob_slot,
 
     //CONTROL inputs
     input CTRL_ld, //says whether the ld or st unit should
@@ -23,6 +24,11 @@ module rs_memory(  //includes load and store buffers and their datastructures
     input [3:0] cdb_id, //data id of cdb i.e. who sent the data
     input [63:0] cdb_data, // data incoming on the cdb
 
+	//ROB inputs
+	input CTRL_rob_storeDataReady,
+	input [63:0] rob_store_val,
+	input [63:0] rob_store_addr,
+	
     // CONTROL outputs
     // -- to issue control
     output ld_busy, //means ld reservation station is full
@@ -133,15 +139,22 @@ endfunction
                      cdb_id, cdb_data, ld_free_tag, ld_address_bus, ld_data_bus,
                      ld_ready_bus, ld_busy, ld_aff_ready,ld_affinity_op, ld_affinity_offset );
 
-   rs_store rs_store (clk, vj, vk, qj, qk, A, address, query_tag_st, CTRL_st, remove,
-                      mem_tag, cdb_id, cdb_data, st_free_tag, st_address_bus, st_data_bus,
-                      st_ready_bus,st_busy, st_aff_ready, st_affinity_op, st_affinity_offset );
+					 
+	//delete this Reservation Station
+	//input comes from the ROB
+   //rs_store rs_store (clk, vj, vk, qj, qk, A, address, query_tag_st, CTRL_st, remove,
+    //                  mem_tag, cdb_id, cdb_data, st_free_tag, st_address_bus, st_data_bus,
+     //                 st_ready_bus,st_busy, st_aff_ready, st_affinity_op, st_affinity_offset );
 
    address_calc address_calc(op,  offset, address);
 
+   
+   //mux here with store input from ROB, rob_store_addr and rob_store_val
   assign mem_address = get_val(mem_tag, address_bus);
   assign mem_data = get_val(mem_tag, data_bus);
   assign ready_to_write = (ready_bus[4] | ready_bus[3] | ready_bus[2]) & mem_ready ;
+  
+  //mux mem tag here with str1
   assign cdb_write_id = mem_tag;
 
 
