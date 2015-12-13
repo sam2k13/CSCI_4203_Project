@@ -17,6 +17,7 @@ module rs_mult(
     input [3:0] tag_2,
     input [63:0] op_1,
     input [63:0] op_2,
+	input [1:0] rob_slot,
     // -- cdb
     input [3:0] cdb_id,
     input [63:0] cdb_data,
@@ -33,6 +34,7 @@ module rs_mult(
 //  DATA outputs
     // -- arbiter
     output reg [3:0] cdb_write_id,
+	output reg [1:0] rob_dest,
     // --to adder 
     output reg [63:0] multiplier_A,
     output reg [63:0] multiplier_B,
@@ -57,6 +59,7 @@ module rs_mult(
 
 
    //adder reservation data
+   reg [1:0] rob [0:2];
    reg [63:0] op1 [0:1];
    reg [63:0] op2 [0:1];
    reg [3:0] tag1 [0:1];
@@ -97,12 +100,14 @@ module rs_mult(
       // -- give multiplier inputs
       if ((ready[0] == 1) && (ready[1] != 1))
       begin
+		 rob_dest = rob[0];
          multiplier_A = op1[0];
          multiplier_B = op2[0];
          cdb_write_id = mult_1;
       end
       else if (ready[1] == 1)
       begin
+		 rob_dest = rob[1];
          multiplier_A = op1[1];
          multiplier_B = op2[1];
          cdb_write_id = mult_2;

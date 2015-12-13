@@ -6,6 +6,7 @@ module rob(
 
 	input [5:0] instr_op,
 	input [63:0] instr_dst,
+	input nodest,
 	input [1:0] instr_dst_type,
 	input CTRL_instr_incoming, //if 1, there is an instruction ready to be added to ROB
 	
@@ -18,6 +19,9 @@ module rob(
 	input [1:0] cdb_rob_dest,
 	input [63:0] cdb_data,
 	input CTRL_incoming_data,
+	
+	
+	
 	//outputs to regfile	
 	
 	output [3:0] rob_id,
@@ -50,8 +54,6 @@ parameter notag = 0,
             ld_3 = 8,
             st_1 = 9,
             st_2 = 10;
-
-
 			
 reg [3:0] ROB_op [0:1]; //4 ROB op registers
 reg [63:0] ROB_dst [0:1]; //4 ROB Dst registers
@@ -61,13 +63,10 @@ reg  ROB_ready [0:1]; //4 ROB ready registers
 reg  ROB_open [0:1]; //4 ROB ready registers
 reg  ROB_branch_taken [0:1]; //4 ROB ready registers
 
-
 //implement adding to the reorder buffer
 //use instr_op, instr_dst, set rob_ready = 0
 //use for loop to find empty rob slot
 //check for first slot where ROB_open == 1
-
-
 
 always @(posedge clk)
   begin

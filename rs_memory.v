@@ -36,6 +36,7 @@ module rs_memory(  //includes load and store buffers and their datastructures
     // -- to the arbiter
     output  ready_to_write,
     output [3:0]  cdb_write_id,
+	output reg [1:0] rob_dest,
 
     // DATA to the memory unit
     output [63:0] mem_data,

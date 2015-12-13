@@ -67,7 +67,7 @@ module rs_adder(
             st_2 = 10;
 
    //adder reservation data
-   reg [1:0] rob_slot [0:1];
+   reg [1:0] rob [0:1];
    reg [63:0] op1 [0:2];
    reg [63:0] op2 [0:2];
    reg [3:0] tag1 [0:2];
@@ -115,6 +115,7 @@ module rs_adder(
       // -- give adder inputs
       if ((ready[0] == 1) && (ready[1] != 1) && (ready[2] != 1))
       begin
+		 rob_dest = rob[0];
          adder_A = op1[0];
          adder_B = op2[0];
          adder_incrPC = rs_incrPC[0];
@@ -124,6 +125,7 @@ module rs_adder(
       end
       else if ((ready[1] == 1) && (ready[2] != 1))
       begin
+	     rob_dest = rob[1];
          adder_A = op1[1];
          adder_B = op2[1];
          adder_incrPC = rs_incrPC[1];
@@ -133,6 +135,7 @@ module rs_adder(
       end
       else if (ready[2] == 1 )
       begin
+	     rob_dest = rob[1];
          adder_A = op1[2];
          adder_B = op2[2];
          adder_incrPC = rs_incrPC[2];
@@ -207,7 +210,7 @@ module rs_adder(
                 op2[0] <= op_2;
                 tag2[0] <= tag_2;
             end
-			rob_dest[0] = rob_slot;
+			rob[0] = rob_slot;
             free[0] <= 0;
             rs_incrPC[0] <= incrPC;
             rs_offset[0] <= offset;
@@ -236,7 +239,7 @@ module rs_adder(
                 op2[1] <= op_2;
                 tag2[1] <= tag_2;
             end
-			rob_dest[1] = rob_slot;
+			rob[1] = rob_slot;
             free[1] <= 0;
             rs_incrPC[1] <= incrPC;
             rs_offset[1] <= offset;
@@ -265,7 +268,7 @@ module rs_adder(
                 op2[2] <= op_2;
                 tag2[2] <= tag_2;
             end
-			rob_dest[2] = rob_slot;
+			rob[2] = rob_slot;
             free[2] <= 0;
             rs_incrPC[2] <= incrPC;
             rs_offset[2] <= offset;

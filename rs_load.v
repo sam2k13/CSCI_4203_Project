@@ -5,6 +5,7 @@ module rs_load(
     input [63:0] vj,  //the operand
     input [3:0]  qj,  //the tag
     input [63:0] offset,   //offset
+	input [1:0] rob_slot,
 
     //query reservation entry by tag
     input [63:0] address, //from affinity calc
@@ -27,6 +28,7 @@ module rs_load(
     output  [64*3 -1:0] load_addr,
     output  [64*3 -1:0] load_data,
     output [2:0] ready_bus,
+	output reg [1:0] rob_dest,
 
 
     //OUTPUT control signal
@@ -56,6 +58,7 @@ parameter notag = 0,
     reg [63:0] A [0:2] ; //affinity -- it is address + offset
     reg free [0:2] ; //says whether the slot is free
     wire ready [0:2] ;
+	reg [1:0] rob [0:2];
 
   initial
   begin

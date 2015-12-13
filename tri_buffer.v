@@ -12,3 +12,18 @@ module tri_buffer(
            signal_out = signal_in;
     end
 endmodule
+
+module tri_buffer_2bit(
+    input [1:0] signal_in,
+    input ctrl,
+    output reg [1:0] signal_out
+);
+
+    always @(*)
+    begin
+        if (ctrl == 0)
+           signal_out = 2'bz;
+        else
+           signal_out = signal_in;
+    end
+endmodule

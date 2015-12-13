@@ -7,6 +7,7 @@ module rs_store(
     input [3:0] qj,
     input [3:0] qk,
     input [63:0] offset,
+	input [1:0] rob_slot,
 
     input [63:0] address, //from affinity calc
     input [3:0] query_tag, //for affinity calc
@@ -27,6 +28,7 @@ module rs_store(
     output  [64*2 -1:0] st_addr, 
     output  [64*2 -1:0] st_data, 
     output [1:0] ready_bus,
+	output reg [1:0] rob_dest,
 
     //OUTPUT control signals
     output busy,
@@ -53,6 +55,7 @@ module rs_store(
   reg [3:0] tag1 [0:1] ; //tag if the address is not available
   reg [3:0] tag2 [0:1] ; //tag if the value is not available
   reg [63:0] A [0:1] ; //It is the address + affinity
+  reg [1:0] rob [0:2];
   reg free [0:1] ; //says whether the slot is free
   wire ready [0:1];
   

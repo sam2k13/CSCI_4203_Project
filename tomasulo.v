@@ -109,7 +109,7 @@ module tomasulo(
   //CDB (common data bus)
   wire [63:0] CDB;
   wire [3:0] cdb_id;
-
+  wire [1:0] cdb_rob_slot;
   //initial
   //begin
     //$display ("| time | clock | PC_output | PC_input | iq_empty | CTRL_PC/flush | stall");
@@ -137,46 +137,56 @@ module tomasulo(
   //OFFSET data
   assign offset_ldst = iq_inst_out[15:0];
   assign offset_beq = iq_inst_out[20:0];
-  offset_data offset_data(offset_ldst, offset_beq, beq_out, ldst_out);
-
+  offset_data offset_data(offset_ldst, offset_beq, beq_out, ldst_out);  
+  
   //REGISTER FILE
   regfile regfile(clk, stall, rs_tag, opcode, reg_src1, reg_src2, reg_dest, nodest,
-                  cdb_id, CDB,op_1,op_2,tag_1, tag_2, tb_regs);
-                                                //regfile
+                  rob_id, rob_data,CTRL_flushRegFile, op_1,op_2,tag_1, tag_2, tb_regs);
 
+  //ROB
+  rob rob(opcode, reg_dest,nodest, stall, CTRL_PC, cdb_rob_dest,
+	      cdb_id, CTRL_incoming_data, rob_id, rob_data, CTRL_flushRegFile, CTRL_regFileDataReady,
+		  CTRL_storeDataReady,CTRL_rob_full, rob_store_addr, rob_store_val);
+												
+												
   //RESERVATION STATIONS
 
+  //outputs and inputs are rob slot as well.
   //---   1. memory unit -- reservation stations and logic
   rs_memory rs_memory ( clk, CTRL_mem, mem_ready, op_1, op_2, tag_1, tag_2, ldst_out, CTRL_ld,
                         CTRL_st, cdb_id, CDB, ld_busy, st_busy, rs_mem_ready,
                         rs_mem_cdb_id, datIn, addr, control, rs_ld_free, rs_st_free   );
 
-
+  //outputs and inputs are rob slot as well.
   //---   2. adder reservation stations
   rs_adder rs_adder (clk, CTRL_add, opcode, adder_ready,
                      tag_1, tag_2, op_1, op_2, incrPC_out, beq_out, 
                      cdb_id, CDB, rs_adder_ready, rs_adder_busy,
                      rs_adder_free, rs_adder_cdb_id, add_a, add_b,
-                     adder_incrPC, adder_offset, adder_opcode, rs_adder_input );
-
+                     adder_incrPC, adder_offset, adder_opcode, rs_adder_input);
+  //outputs and inputs are rob slot as well.
   //---   3. multiplier reservation station
   rs_mult  rs_mult( clk, CTRL_mult, mult_ready,
                      tag_1, tag_2, op_1, op_2,
                      cdb_id, CDB, rs_mult_ready, rs_mult_busy,
                      rs_mult_free, rs_mult_cdb_id, mult_a, mult_b, rs_mult_input );
-
+  //outputs and inputs are rob slot as well.
   //FUNCTIONAL UNITS
 
+  //outputs and inputs are rob slot as well.
   //---   1. Adders and adder logic
   adder adder(clk,add_a, add_b, status_cdb_add, rs_adder_input, adder_incrPC,
               adder_offset, adder_opcode,  add_c, adder_ready, CTRL_PC, 
-              branchPC,  br_stall );
+              branchPC,  br_stall, add_rob_dest );
 
+	//outputs and inputs are rob slot as well.
   //---   2. Multiplier and multiplier logic
-  multiplier multiplier(clk, mult_a, mult_b, status_cdb_mult, rs_mult_input,  mult_c, mult_ready);
+  multiplier multiplier(clk, mult_a, mult_b, status_cdb_mult, rs_mult_input,  mult_c, mult_ready,mult_rob_dest);
 
+  
+  //input comes from ROB directly
   //---  3. Memory unit and logic
-  memory memory(clk, datIn, addr, control, CTRL_cdb_ld, wb_data, mem_ready, tb_mem);
+  memory memory(clk, datIn, addr, control, CTRL_cdb_ld, wb_data, mem_ready, tb_mem, mem_rob_dest);
 
   //bus arbiter
 
@@ -194,6 +204,12 @@ module tomasulo(
   tri_buffer b2(mult_c, CTRL_cdb_mult, CDB);
   tri_buffer b4(wb_data, CTRL_cdb_ld, CDB);
 
+  tri_buffer_2bit r1(add_rob_dest, CTRL_cdb_add, cdb_rob_slot);
+  tri_buffer_2bit r2(mult_rob_dest, CTRL_cdb_mult, cdb_rob_slot);
+  tri_buffer_2bit r4(mem_rob_dest, CTRL_cdb_ld, cdb_rob_slot);
+  
+  
+  
   tri_buffer_4bit b11(rs_adder_cdb_id, CTRL_cdb_add, cdb_id);
   tri_buffer_4bit b21(rs_mult_cdb_id, CTRL_cdb_mult, cdb_id);
   tri_buffer_4bit b31(rs_mem_cdb_id, CTRL_cdb_ld, cdb_id);
